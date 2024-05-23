@@ -56,6 +56,8 @@ currency = {"$":{"name":"dollar", "code":"USD"},
 "¥":{"name":"yuan", "code":"JPY"},
 "₽":{"name":"ruble", "code":"RUB"}}
 
+dict_full_book = {}
+
 for category in all_categorys:
     name,link = category.values()
 
@@ -79,6 +81,8 @@ for category in all_categorys:
     books = categ_soup.find_all("article", {"class": "product_pod"})
 
     for book in books:
+        all_full_book_info = {}
+
         base_book = book.find("h3")
         title = base_book.find('a')["title"]
         link = f'{base_book.find("a").get("href")}'
@@ -89,10 +93,7 @@ for category in all_categorys:
 
         for i in currency.keys():
             if i in price:
-                price = {"price":float(price.replace(i, "")),"currency": {currency.get(i).get("name"),currency.get(i).get("code")}}
-                break
-
-        # print(price)
+                price = {"price":float(price.replace(i, "")),"currency": {"name":currency.get(i).get("name"),"code":currency.get(i).get("code")}}
 
 
         book_response = session.get(link, headers=headers)
@@ -108,3 +109,14 @@ for category in all_categorys:
         for p_find in find_description_in_book:
             if "...more" in p_find.getText():
                 description_book = p_find.getText()
+
+        all_full_book_info["title"] = title
+        all_full_book_info["link"] = link
+        all_full_book_info["price"] = price.get("price")
+        all_full_book_info["currency"] = price.get("currency").get("code")
+        all_full_book_info["availability"] = availability if availability else ""
+        all_full_book_info["description"] = description_book if description_book else ""
+        all_full_book_info["id"] = int(re.search("([0-9]+)/index.html",link)[1])
+        all_full_book_info["category"] = name
+
+    pprint(all_full_book_info)

@@ -46,10 +46,15 @@ for category in categorys.find_all("li")[1:]:
     name = {}
     categ = category.find("a")
     name["name"] = re.findall(regex_pattern,str(categ))[0]
-    name["link"] = (url + categ.get("href")).replace("index.html","page-1.html")
+    name["link"] = (url + categ.get("href"))#.replace("index.html","page-1.html")
 
     all_categorys.append(name)
 
+currency = {"$":{"name":"dollar", "code":"USD"},
+"€":{"name":"euro", "code":"EUR"},
+"£":{"name":"british pound", "code":"GBP"},
+"¥":{"name":"yuan", "code":"JPY"},
+"₽":{"name":"ruble", "code":"RUB"}}
 
 for category in all_categorys:
     name,link = category.values()
@@ -58,14 +63,45 @@ for category in all_categorys:
     page_url_clear =  link.replace(link.split("/")[-1],"")
 
     end_url = page_url.split(".")[-1]
-    full_page = page_url.split(".")[0].split("-")
+    # full_page = page_url.split(".")[0].split("-")
+    #
+    # page = int(full_page[-1])
+    #
+    # full_page = f"{full_page[0]}-{page}"
+    # full_end_url = f"{full_page}.{end_url}"
+    #
+    # full_url = f"{page_url_clear}{full_end_url}"
+    # print(full_url)
 
-    page = int(full_page[-1])
+    categ_response = session.get(link, headers=headers)
+    categ_soup = BeautifulSoup(categ_response.text, features="html.parser")
 
-    full_page = f"{full_page[0]}-{page}"
-    full_end_url = f"{full_page}.{end_url}"
+    books = categ_soup.find_all("article", {"class": "product_pod"})
 
-    full_url = f"{page_url_clear}{full_end_url}"
+    for book in books:
+        base_book = book.find("h3")
+        title = base_book.find('a')["title"]
+        link = f'{base_book.find("a").get("href")}'
+        link = f"{url}catalogue/"+link.replace("../","")
 
-    print(full_url)
+        price_book = book.find("div",{"class":"product_price"})
+        price = price_book.find('p',{'class':'price_color'}).getText()[1:]
 
+        for i in currency.keys():
+            if i in price:
+                price = {"price":float(price.replace(i, "")),"currency": {currency.get(i).get("name"),currency.get(i).get("code")}}
+                break
+
+        # print(price)
+
+
+        book_response = session.get(link, headers=headers)
+        book_soup = BeautifulSoup(categ_response.text, features="html.parser")
+
+        print(book_soup)
+
+        # info_book = book_soup.find("In stock")
+        # print(str(info_book))
+        # print(re.findall(r"([0-9]+)",str(info_book)))
+        #
+        # pattern_in_stock = r"(\w+ *\w* *\w* *\w*)\n"

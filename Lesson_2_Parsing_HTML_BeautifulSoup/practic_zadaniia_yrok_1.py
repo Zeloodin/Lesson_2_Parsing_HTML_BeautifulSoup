@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup, BeautifulSoup as bs
 from fake_useragent import UserAgent
 from pprint import pprint
 import re
+import os
+import json
 # ua = UserAgent()
 
 # Сбор и разметка данных (семинары)
@@ -13,6 +15,26 @@ import re
 # в наличии (In stock (19 available)) в формате integer, описание.
 #
 # Затем сохранить эту информацию в JSON-файле.
+
+# GOTO
+def save_dict_to_json(dictf:dict,file:str):
+    print(fr"Файл, сохраняется. Путь сохранения, {os.getcwd()}\{file}")
+    if os.path.exists(fr"{os.getcwd()}\{file}"):
+        with open(fr"{os.getcwd()}\{file}",mode="w",encoding="utf8") as jsf:
+            json.dump({}, jsf)
+            print(fr"Файл {os.getcwd()}\{file} создан")
+    with open(fr"{os.getcwd()}\{file}",mode="w",encoding="utf8") as jsf:
+
+        # https://stackoverflow.com/questions/5842115/converting-a-string-which-contains-both-utf-8-encoded-bytestrings-and-codepoints
+        for i in dictf:
+            try:
+                s = i.decode('unicode-escape')
+                s = re.sub(r'[\xc2-\xf4][\x80-\xbf]+',lambda m: m.group(0).encode('latin1').decode('utf8'),s)
+                dictf[i] = s
+            except:
+                continue
+            print(i, s)
+        json.dump(dictf, jsf, indent=4)
 
 # GOTO
 # def parser_page(url_link):
@@ -94,9 +116,11 @@ for category in all_categorys:
             # full_url = f"{page_url_clear}{full_end_url}"
             # print(full_url)
 
-            link = f"{page_url_clear}{next_page}"
 
-            print(f"{page_url = }\n{next_page = }\n{full_page = }\n{page = }\n{link = }")
+
+
+
+            # print(f"{page_url = }\n{next_page = }\n{full_page = }\n{page = }\n{link = }")
 
         books = categ_soup.find_all("article", {"class": "product_pod"})
 
@@ -143,18 +167,24 @@ for category in all_categorys:
             all_full_book_info["availability"] = availability if availability else ""
             all_full_book_info["description"] = description_book if description_book else ""
             all_full_book_info["id"] = id_book
-
+            print(link)
             dict_full_books[all_full_book_info.get("id")] = {"category": all_full_book_info["category"],
                                                             "title": all_full_book_info["title"],
                                                             "link": all_full_book_info["link"],
                                                             "description": all_full_book_info["description"],
                                                             "availability": all_full_book_info["availability"],
                                                             "price": all_full_book_info["price"],
-                                                            "currency": all_full_book_info["currency"]}
+                                                            "currency": all_full_book_info["currency"],
+                                                            "link_page": link}
 
             print(f'Книга {all_full_book_info["title"]}, добавлен в словарь, id книги {all_full_book_info["id"]}')
             print(f"Колличество книг в словаре, {len(dict_full_books)}.")
             print(end="\n" * 2)
+
+            save_dict_to_json(dict_full_books,"full_books.json")
+
+            if is_next:
+                link = f"{page_url_clear}{next_page}"
 
         if not categ_soup.find("li", {"class": "next"}):
             break

@@ -40,11 +40,14 @@ soup = BeautifulSoup(response.text, features="html.parser")
 
 categorys = soup.find_all("div", {"class":"side_categories"})[0]#.find_all("a",{"href":"category/books_1/index.html"})
 
-category_info = {}
+all_categorys = []
 
 for category in categorys.find_all("li")[1:]:
-    name = category.find("a")
-    # print(url + name.get("href"))
-    print(re.findall(regex_pattern,str(name))[0])
+    name = {}
+    categ = category.find("a")
+    name["name"] = re.findall(regex_pattern,str(categ))[0]
+    name["link"] = (url + categ.get("href")).replace("index.html","page-1.html")
 
-print()
+    all_categorys.append(name)
+
+pprint(all_categorys)

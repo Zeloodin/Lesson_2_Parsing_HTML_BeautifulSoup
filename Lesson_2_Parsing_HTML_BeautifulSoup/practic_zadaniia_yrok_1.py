@@ -45,6 +45,8 @@ all_categorys = []
 for category in categorys.find_all("li")[1:]:
     name = {}
     categ = category.find("a")
+
+    print(categ)
     name["name"] = re.findall(regex_pattern,str(categ))[0]
     name["link"] = (url + categ.get("href"))#.replace("index.html","page-1.html")
 
@@ -110,6 +112,8 @@ for category in all_categorys:
             if "...more" in p_find.getText():
                 description_book = p_find.getText()
 
+
+        all_full_book_info["category"] = name
         all_full_book_info["title"] = title
         all_full_book_info["link"] = link
         all_full_book_info["price"] = price.get("price")
@@ -117,6 +121,13 @@ for category in all_categorys:
         all_full_book_info["availability"] = availability if availability else ""
         all_full_book_info["description"] = description_book if description_book else ""
         all_full_book_info["id"] = int(re.search("([0-9]+)/index.html",link)[1])
-        all_full_book_info["category"] = name
 
-    pprint(all_full_book_info)
+    print(category)
+    print(all_full_book_info.get("category"))
+    dict_full_book[all_full_book_info.get("id")] = {"category": all_full_book_info["category"],
+                                                    "title": all_full_book_info["title"],
+                                                    "link": all_full_book_info["link"],
+                                                    "description": all_full_book_info["description"],
+                                                    "availability": all_full_book_info["availability"],
+                                                    "price": all_full_book_info["price"],
+                                                    "currency": all_full_book_info["currency"]}

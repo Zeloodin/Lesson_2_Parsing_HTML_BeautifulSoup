@@ -50,4 +50,22 @@ for category in categorys.find_all("li")[1:]:
 
     all_categorys.append(name)
 
-pprint(all_categorys)
+
+for category in all_categorys:
+    name,link = category.values()
+
+    page_url = link.split("/")[-1]
+    page_url_clear =  link.replace(link.split("/")[-1],"")
+
+    end_url = page_url.split(".")[-1]
+    full_page = page_url.split(".")[0].split("-")
+
+    page = int(full_page[-1])
+
+    full_page = f"{full_page[0]}-{page}"
+    full_end_url = f"{full_page}.{end_url}"
+
+    full_url = f"{page_url_clear}{full_end_url}"
+
+    print(full_url)
+

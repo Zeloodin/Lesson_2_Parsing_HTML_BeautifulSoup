@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup, BeautifulSoup as bs
 from fake_useragent import UserAgent
 from pprint import pprint
+import re
 # ua = UserAgent()
 
 # Сбор и разметка данных (семинары)
@@ -32,10 +33,7 @@ params = {"catalogue": f"page-{page}"}
 session = requests.session()
 
 
-
-
-
-
+regex_pattern = r"(\w+ *\w* *\w* *\w*)\n"
 
 response = session.get(url,params=params, headers=headers)
 soup = BeautifulSoup(response.text, features="html.parser")
@@ -43,8 +41,10 @@ soup = BeautifulSoup(response.text, features="html.parser")
 categorys = soup.find_all("div", {"class":"side_categories"})[0]#.find_all("a",{"href":"category/books_1/index.html"})
 
 category_info = {}
+
 for category in categorys.find_all("li")[1:]:
     name = category.find("a")
-    print(name.find("href"), url + name.get("href"))
+    # print(url + name.get("href"))
+    print(re.findall(regex_pattern,str(name))[0])
 
 print()

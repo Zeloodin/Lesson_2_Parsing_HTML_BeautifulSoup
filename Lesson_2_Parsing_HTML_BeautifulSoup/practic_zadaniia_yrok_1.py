@@ -25,15 +25,16 @@ def save_dict_to_json(dictf:dict,file:str):
             print(fr"Файл {os.getcwd()}\{file} создан")
     with open(fr"{os.getcwd()}\{file}",mode="w",encoding="utf8") as jsf:
 
-        # https://stackoverflow.com/questions/5842115/converting-a-string-which-contains-both-utf-8-encoded-bytestrings-and-codepoints
-        for i in dictf:
-            try:
-                s = i.decode('unicode-escape')
-                s = re.sub(r'[\xc2-\xf4][\x80-\xbf]+',lambda m: m.group(0).encode('latin1').decode('utf8'),s)
-                dictf[i] = s
-            except:
-                continue
-            print(i, s)
+        # # Пытался с помощью кода, исправить кодировку. Не получилось.
+        # # https://stackoverflow.com/questions/5842115/converting-a-string-which-contains-both-utf-8-encoded-bytestrings-and-codepoints
+        # for i in dictf:
+        #     try:
+        #         s = i.decode('unicode-escape')
+        #         s = re.sub(r'[\xc2-\xf4][\x80-\xbf]+',lambda m: m.group(0).encode('latin1').decode('utf8'),s)
+        #         dictf[i] = s
+        #     except:
+        #         continue
+        #     print(i, s)
         json.dump(dictf, jsf, indent=4)
 
 # GOTO
@@ -167,11 +168,15 @@ for category in all_categorys:
             all_full_book_info["availability"] = availability if availability else ""
             all_full_book_info["description"] = description_book if description_book else ""
             all_full_book_info["id"] = id_book
-            print(link)
-            dict_full_books[all_full_book_info.get("id")] = {"category": all_full_book_info["category"],
-                                                            "title": all_full_book_info["title"],
+
+            # https://stackoverflow.com/questions/52460662/how-to-decode-escaped-unicode-characters
+            # FIX
+            # .encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8')
+
+            dict_full_books[all_full_book_info.get("id")] = {"category": all_full_book_info["category"],#.encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
+                                                            "title": all_full_book_info["title"],#.encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
                                                             "link": all_full_book_info["link"],
-                                                            "description": all_full_book_info["description"],
+                                                            "description": all_full_book_info["description"].encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
                                                             "availability": all_full_book_info["availability"],
                                                             "price": all_full_book_info["price"],
                                                             "currency": all_full_book_info["currency"],

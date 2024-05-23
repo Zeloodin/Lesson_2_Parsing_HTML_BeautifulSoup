@@ -96,12 +96,15 @@ for category in all_categorys:
 
 
         book_response = session.get(link, headers=headers)
-        book_soup = BeautifulSoup(categ_response.text, features="html.parser")
+        book_soup = BeautifulSoup(book_response.text, features="html.parser")
 
-        print(book_soup)
+        info_book = book_soup.find_all("table",{"class":"table"})
+        for inf_bok in info_book:
+            for ibk in inf_bok.find_all("td"):
+                if "In stock" in ibk.getText():
+                    availability = int(re.search("\\(([0-9]+) ",ibk.getText())[1])
 
-        # info_book = book_soup.find("In stock")
-        # print(str(info_book))
-        # print(re.findall(r"([0-9]+)",str(info_book)))
-        #
-        # pattern_in_stock = r"(\w+ *\w* *\w* *\w*)\n"
+        find_description_in_book = book_soup.find_all("p")
+        for p_find in find_description_in_book:
+            if "...more" in p_find.getText():
+                description_book = p_find.getText()

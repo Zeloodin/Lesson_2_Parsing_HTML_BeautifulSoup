@@ -196,3 +196,12 @@ for category in all_categorys:
 
         if not categ_soup.find("li", {"class": "next"}):
             break
+
+# https://www.itcodar.com/python/how-to-decode-string-escape-in-python-3.html
+# https://www.ifcmarkets.com/ru/about-forex/currencies-and-abbreviations
+# https://ru.stackoverflow.com/questions/582693/Как-получить-содержимое-div-title-с-помощью-beautifulsoup
+# https://www.tutorialspoint.com/How-to-match-pattern-over-multiple-lines-in-Python
+#
+# https://qna.habr.com/q/218911
+# https://qna.habr.com/q/205241
+# https://beautiful-soup-4.readthedocs.io/en/latest/

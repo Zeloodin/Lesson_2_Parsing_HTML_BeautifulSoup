@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+#-*- coding: utf-8 -*-
+
 import requests
 from bs4 import BeautifulSoup, BeautifulSoup as bs
 from fake_useragent import UserAgent

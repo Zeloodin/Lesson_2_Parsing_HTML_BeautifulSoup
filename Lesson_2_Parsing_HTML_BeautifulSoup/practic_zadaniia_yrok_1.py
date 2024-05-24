@@ -24,7 +24,7 @@ def save_dict_to_json(dictf:dict,file:str):
     print(fr"Файл, сохраняется. Путь сохранения, {os.getcwd()}\{file}")
     if os.path.exists(fr"{os.getcwd()}\{file}"):
         with open(fr"{os.getcwd()}\{file}",mode="w",encoding="utf8") as jsf:
-            json.dump({}, jsf)
+            json.dump(dictf, jsf, indent=4)
             print(fr"Файл {os.getcwd()}\{file} создан")
     with open(fr"{os.getcwd()}\{file}",mode="w",encoding="utf8") as jsf:
 
@@ -67,7 +67,9 @@ session = requests.session()
 regex_pattern = r"(\w+ *\w* *\w* *\w*)\n"
 
 response = session.get(url,params=params, headers=headers)
+
 soup = BeautifulSoup(response.text, features="html.parser")
+soup.encoding = 'utf8'  # Теперь requests отдаёт данные в кодировке utf8 которая уже нормально читается
 
 categorys = soup.find_all("div", {"class":"side_categories"})[0]#.find_all("a",{"href":"category/books_1/index.html"})
 
@@ -104,8 +106,9 @@ for category in all_categorys:
     while True:
 
         categ_response = session.get(link, headers=headers)
-        categ_soup = BeautifulSoup(categ_response.text, features="html.parser")
 
+        categ_soup = BeautifulSoup(categ_response.text, features="html.parser")
+        categ_soup.encoding = 'utf8'  # Теперь requests отдаёт данные в кодировке utf8 которая уже нормально читается
 
         if categ_soup.find("li", {"class": "next"}):
             is_next = True
@@ -146,7 +149,9 @@ for category in all_categorys:
             print(f"Собирается в категории {name}, на странице {page}, книга {title}")
 
             book_response = session.get(link_book, headers=headers)
+
             book_soup = BeautifulSoup(book_response.text, features="html.parser")
+            book_soup.encoding = 'utf8'  # Теперь requests отдаёт данные в кодировке utf8 которая уже нормально читается
 
             info_book = book_soup.find_all("table",{"class":"table"})
             for inf_bok in info_book:
@@ -176,14 +181,19 @@ for category in all_categorys:
             # FIX
             # .encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8')
 
-            dict_full_books[all_full_book_info.get("id")] = {"category": all_full_book_info["category"],#.encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
-                                                            "title": all_full_book_info["title"],#.encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
-                                                            "link": all_full_book_info["link"],
-                                                            "description": all_full_book_info["description"].encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
+            # https://stackoverflow.com/questions/7555335/how-to-convert-a-string-from-cp-1251-to-utf-8
+            # https://qna.habr.com/q/992007
+            # https://ru.stackoverflow.com/questions/942287/Ошибка-при-перекодировке-из-1251-в-utf8
+
+
+            dict_full_books[all_full_book_info.get("id")] = {"category": all_full_book_info["category"].encode("latin1").decode("utf8"),#.encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
+                                                            "title": all_full_book_info["title"].encode("latin1").decode("utf8"),#.encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
+                                                            "link": all_full_book_info["link"].encode("latin1").decode("utf8"),
+                                                            "description": all_full_book_info["description"].encode("latin1").decode("utf8"),#.encode('latin-1').decode('unicode_escape').encode('latin-1').decode('utf-8'),
                                                             "availability": all_full_book_info["availability"],
                                                             "price": all_full_book_info["price"],
                                                             "currency": all_full_book_info["currency"],
-                                                            "link_page": link}
+                                                            "link_page": link.encode("latin1").decode("utf8")}
 
             print(f'Книга {all_full_book_info["title"]}, добавлен в словарь, id книги {all_full_book_info["id"]}')
             print(f"Колличество книг в словаре, {len(dict_full_books)}.")
